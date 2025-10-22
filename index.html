@@ -1,123 +1,85 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE-html>
+    <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diário de Bordo - Turnos</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Diário de Bordo - Turnos</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
 
-<body>
+    <body>
 
-    <nav>
-        <ul>
-            <li><button id="homeBtn" class="active">Início</button></li>
-            <li><button class="posto-btn" data-posto="EOM - Longarina">EOM - Longarina</button></li>
-            <li><button class="posto-btn" data-posto="Dress-UP">Dress - UP</button></li>
-            <li><button class="posto-btn" data-posto="AGV - CAM">AGV - CAM</button></li>
-            <li><button class="posto-btn" data-posto="EOM - CAB">EOM - CAB</button></li>
-            <li><button class="posto-btn" data-posto="AGV - Pneus">AGV - Pneus</button></li>
-        </ul>
-    </nav>
-
-    <section class="card" id="mainCard">
-        <!-- Página inicial -->
-        <div id="homePage">
-            <h1>Bem-vindo ao Diário de Bordo</h1>
-            <p>Este diário de bordo foi criado para facilitar a troca de informações entre turnos nas áreas de
-                manutenção industrial.</p>
-            <p>Você encontrará registros separados por cada posto de manutenção:</p>
+        <nav>
             <ul>
-                <li>EOM - Longarina</li>
-                <li>Dress - UP</li>
-                <li>AGV - CAM</li>
-                <li>EOM - CAB</li>
-                <li>AGV - Pneus</li>
+                <li><button id="homeBtn" class="active">Início</button></li>
+                <li><button class="posto-btn" data-posto="EOM - Longarina">EOM - Longarina</button></li>
+                <li><button class="posto-btn" data-posto="Dress-UP">Dress - UP</button></li>
+                <li><button class="posto-btn" data-posto="AGV - CAM">AGV - CAM</button></li>
+                <li><button class="posto-btn" data-posto="EOM - CAB">EOM - CAB</button></li>
+                <li><button class="posto-btn" data-posto="AGV - Pneus">AGV - Pneus</button></li>
             </ul>
-            <p>Para cada posto, é possível:</p>
-            <ul>
-                <li>Registrar observações do turno com data e hora;</li>
-                <li>Consultar observações de dias anteriores;</li>
-                <li>Filtrar registros por data;</li>
-                <li>Garantir que todos os turnos tenham informações centralizadas e organizadas.</li>
-            </ul>
-            <p>Para começar, clique no nome do posto desejado no menu.</p>
-        </div>
+        </nav>
 
-        <!-- Página do posto -->
-        <div id="postoPage" style="display:none;">
-            <h1 id="cardTitle">Posto</h1>
-
-            <label>Data da observação:</label>
-            <input type="date" id="entryDate">
-
-            <label>Nome do Operador:</label>
-            <input type="text" id="operatorName" placeholder="Seu nome">
-
-            <label>Turno:</label>
-            <select id="shift">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="N">N</option>
-                <option value="3">3</option>
-            </select>
-
-            <textarea id="observation" rows="4" placeholder="Digite a observação do turno"></textarea>
-            <button class="save-btn" onclick="addEntry()">Salvar Observação</button>
-
-            <div class="date-filter-group">
-                <label>Filtrar por período:</label>
-                <input type="date" id="filterStartDate" onchange="displayEntries()">
-                <input type="date" id="filterEndDate" onchange="displayEntries()">
+        <section class="card" id="mainCard">
+            <div id="homePage">
+                <h1>Bem-vindo ao Diário de Bordo</h1>
+                <p>Este diário de bordo foi criado para facilitar a troca de informações entre turnos nas áreas de
+                    manutenção industrial.</p>
+                <p>Você encontrará registros separados por cada posto de manutenção:</p>
+                <ul>
+                    <li>EOM - Longarina</li>
+                    <li>Dress - UP</li>
+                    <li>AGV - CAM</li>
+                    <li>EOM - CAB</li>
+                    <li>AGV - Pneus</li>
+                </ul>
+                <p>Para cada posto, é possível:</p>
+                <ul>
+                    <li>Registrar observações do turno com data e hora;</li>
+                    <li>Consultar observações de dias anteriores;</li>
+                    <li>Filtrar registros por data;</li>
+                    <li>Garantir que todos os turnos tenham informações centralizadas e organizadas.</li>
+                </ul>
+                <p>Para começar, clique no nome do posto desejado no menu acima.</p>
             </div>
 
-            <h2>Observações do Período</h2>
-            <div id="entries"></div>
-        </div>
-    </section>
+            <div id="postoPage" style="display:none;">
+                <h1 id="cardTitle">Posto</h1>
 
-    <footer>
-        <p>&copy; 2025 - Made by Murilo Vitoriano Bezerra.</p>
-    </footer>
+                <label>Data da observação:</label>
+                <input type="date" id="entryDate">
 
-    <!-- Script funcional -->
-    <script>
-        const homeBtn = document.getElementById('homeBtn');
-        const postoBtns = document.querySelectorAll('.posto-btn');
-        const homePage = document.getElementById('homePage');
-        const postoPage = document.getElementById('postoPage');
-        const cardTitle = document.getElementById('cardTitle');
+                <label>Nome do Operador:</label>
+                <input type="text" id="operatorName" placeholder="Seu nome">
 
-        homeBtn.addEventListener('click', () => {
-            homePage.style.display = 'block';
-            postoPage.style.display = 'none';
-            homeBtn.classList.add('active');
-            postoBtns.forEach(btn => btn.classList.remove('active'));
-        });
+                <label>Turno:</label>
+                <select id="shift">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="N">N</option>
+                    <option value="3">3</option>
+                </select>
 
-        postoBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const posto = btn.getAttribute('data-posto');
-                cardTitle.textContent = posto;
-                homePage.style.display = 'none';
-                postoPage.style.display = 'block';
-                postoBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                homeBtn.classList.remove('active');
-            });
-        });
+                <textarea id="observation" rows="4" placeholder="Digite a observação do turno"></textarea>
+                <button class="save-btn" onclick="addEntry()">Salvar Observação</button>
 
-        function addEntry() {
-            alert("Função de salvar ainda será implementada!");
-        }
+                <div class="date-filter-group">
+                    <label>Filtrar por período:</label>
+                    <input type="date" id="filterStartDate" onchange="displayEntries()">
+                    <input type="date" id="filterEndDate" onchange="displayEntries()">
+                </div>
 
-        function displayEntries() {
-            // Esta função exibirá os registros filtrados
-            console.log("Filtro aplicado");
-        }
-    </script>
+                <h2>Observações do Período</h2>
+                <div id="entries"></div>
+            </div>
+        </section>
 
-</body>
+        <script src="script.js"></script>
 
-</html>
+        <footer>
+            <p>&copy; 2025 - Made by Murilo Vitoriano Bezerra.</p>
+        </footer>
+    </body>
+
+    </html>
