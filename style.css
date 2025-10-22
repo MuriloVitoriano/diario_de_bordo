@@ -1,0 +1,219 @@
+/* ========= ESTILO GLOBAL ========= */
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0;
+    padding-top: 60px;
+    /* espaço para menu fixo */
+}
+
+/* ========= MENU HORIZONTAL FIXO ========= */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #222;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 10px;
+}
+
+nav li button {
+    background: #444;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+nav li button:hover,
+nav li button.active {
+    background: #0077cc;
+}
+
+/* ========= CARD PRINCIPAL ========= */
+.card {
+    max-width: 700px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+h1,
+h2 {
+    text-align: center;
+    color: #222;
+}
+
+p,
+li {
+    line-height: 1.6;
+}
+
+/* ========= FORMULÁRIOS ========= */
+input,
+textarea,
+button.save-btn,
+select {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+button.save-btn {
+    background-color: #d9d9d9;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button.save-btn:hover {
+    background-color: #b0b0b0;
+}
+
+/* Novo estilo para o grupo de filtros de data */
+.date-filter-group {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    /* Permite quebrar linha em telas pequenas */
+    gap: 10px;
+}
+
+.date-filter-group input {
+    width: calc(50% - 5px);
+    /* Divide a largura entre os dois campos */
+    margin: 0;
+}
+
+.date-filter-group label {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* ========= CARDS DE OBSERVAÇÕES ========= */
+.entry {
+    background: #f0f0f0;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.remove-btn {
+    background-color: #ff6347;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    /* Impede que o botão encolha */
+    margin-left: 10px;
+}
+
+.remove-btn:hover {
+    background-color: #e5533d;
+}
+
+.entry div {
+    flex-grow: 1;
+}
+
+/* ======================================= */
+/* ESTILOS ESPECÍFICOS PARA DISPOSITIVOS MÓVEIS */
+/* ======================================= */
+@media (max-width: 768px) {
+
+    body {
+        padding-top: 100px;
+        /* Ajusta o padding para o menu empilhado */
+    }
+
+    /* Menu de navegação */
+    nav ul {
+        flex-direction: column;
+        /* Empilha os botões verticalmente */
+        align-items: center;
+        gap: 5px;
+    }
+
+    nav li {
+        width: 100%;
+        text-align: center;
+    }
+
+    nav li button {
+        width: 95%;
+        /* Botões ocupam quase a largura total */
+        padding: 15px 10px;
+        /* Aumenta o padding para facilitar o toque */
+    }
+
+    /* Card principal */
+    .card {
+        margin: 10px;
+        padding: 15px;
+        max-width: 100%;
+    }
+
+    /* Observações */
+    .entry {
+        flex-direction: column;
+        /* Empilha o texto e o botão */
+        align-items: flex-start;
+    }
+
+    .remove-btn {
+        width: 100%;
+        /* Botão de remover ocupa a largura total */
+        margin-top: 10px;
+        margin-left: 0;
+    }
+
+    /* Filtro de datas em mobile */
+    .date-filter-group {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .date-filter-group input {
+        width: 100%;
+        margin-top: 5px;
+    }
+}
+
+/* ========= RODAPÉ ========= */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: #222;
+    color: #fff;
+    z-index: 1000;
+}
