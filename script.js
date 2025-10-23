@@ -1,152 +1,121 @@
-// ======== VARIÁVEIS ========
-const homeBtn = document.getElementById('homeBtn');
-const postoBtns = document.querySelectorAll('.posto-btn');
-const allNavBtns = document.querySelectorAll('nav button'); // Seleciona todos os botões da navegação
-let selectedPosto = 'EOM - Longarina';
+<!-- Adicione isso antes do fechamento da tag </body> -->
+<script type="module">
+  // ======== CONFIGURAÇÃO FIREBASE ========
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } 
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// Inicializa datas com hoje
-document.getElementById('entryDate').valueAsDate = new Date();
-const today = new Date().toISOString().split('T')[0];
-document.getElementById('filterStartDate').value = today;
-document.getElementById('filterEndDate').value = today;
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY_AQUI",
+    authDomain: "SEU_AUTH_DOMAIN",
+    projectId: "SEU_PROJECT_ID",
+    storageBucket: "SEU_BUCKET",
+    messagingSenderId: "SEU_SENDER_ID",
+    appId: "SEU_APP_ID"
+  };
 
-// ======== FUNÇÃO PARA NAVEGAÇÃO E ESTILIZAÇÃO ========
-function setActiveButton(activeButton) {
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ======== VARIÁVEIS ========
+  const homeBtn = document.getElementById('homeBtn');
+  const postoBtns = document.querySelectorAll('.posto-btn');
+  const allNavBtns = document.querySelectorAll('nav button');
+  let selectedPosto = 'EOM - Longarina';
+
+  // ======== INICIALIZAÇÃO ========
+  document.getElementById('entryDate').valueAsDate = new Date();
+
+  // ======== NAVEGAÇÃO ========
+  function setActiveButton(activeButton) {
     allNavBtns.forEach(btn => btn.classList.remove('active'));
     activeButton.classList.add('active');
-}
+  }
 
-homeBtn.addEventListener('click', function () {
+  homeBtn.addEventListener('click', function () {
     setActiveButton(this);
     document.getElementById('homePage').style.display = 'block';
     document.getElementById('postoPage').style.display = 'none';
-});
+  });
 
-postoBtns.forEach(btn => {
+  postoBtns.forEach(btn => {
     btn.addEventListener('click', function () {
-        setActiveButton(this);
-        selectedPosto = this.dataset.posto;
-        document.getElementById('cardTitle').textContent = selectedPosto;
-        document.getElementById('homePage').style.display = 'none';
-        document.getElementById('postoPage').style.display = 'block';
-        displayEntries();
+      setActiveButton(this);
+      selectedPosto = this.dataset.posto;
+      document.getElementById('cardTitle').textContent = selectedPosto;
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('postoPage').style.display = 'block';
+      displayEntries();
     });
-});
+  });
 
-// ======== FUNÇÃO PARA SALVAR OBSERVAÇÕES ========
-function addEntry() {
+  // ======== SALVAR OBSERVAÇÃO (FIRESTORE) ========
+  async function addEntry() {
     const dateInput = document.getElementById('entryDate').value;
     const observation = document.getElementById('observation').value.trim();
     const operatorName = document.getElementById('operatorName').value.trim();
     const shift = document.getElementById('shift').value;
 
     if (!observation || !operatorName) {
-        alert("Por favor, digite a observação e o nome do operador.");
-        return;
+      alert("Por favor, digite a observação e o nome do operador.");
+      return;
     }
 
-    const dateParts = dateInput.split('-');
-    const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+    try {
+      await addDoc(collection(db, "observacoes"), {
+        posto: selectedPosto,
+        data: dateInput,
+        operador: operatorName,
+        turno: shift,
+        texto: observation,
+        timestamp: new Date()
+      });
 
-    // Recupera dados do localStorage
-    let data = JSON.parse(localStorage.getItem('diarioBordo')) || {};
+      alert("Observação salva com sucesso!");
+      document.getElementById('observation').value = '';
+      document.getElementById('operatorName').value = '';
+      displayEntries();
+    } catch (error) {
+      console.error("Erro ao salvar: ", error);
+      alert("Erro ao salvar no banco de dados!");
+    }
+  }
 
-    if (!data[formattedDate]) data[formattedDate] = {};
-    if (!data[formattedDate][selectedPosto]) data[formattedDate][selectedPosto] = [];
-
-    // Salva a observação como um objeto
-    data[formattedDate][selectedPosto].push({
-        text: observation,
-        operator: operatorName,
-        shift: shift
-    });
-    localStorage.setItem('diarioBordo', JSON.stringify(data));
-
-    // Limpa os campos e exibe as entradas
-    document.getElementById('observation').value = '';
-    document.getElementById('operatorName').value = '';
-    displayEntries();
-}
-
-// ======== FUNÇÃO PARA EXIBIR OBSERVAÇÕES ========
-function displayEntries() {
-    const startDateInput = document.getElementById('filterStartDate').value;
-    const endDateInput = document.getElementById('filterEndDate').value;
-
+  // ======== EXIBIR OBSERVAÇÕES ========
+  async function displayEntries() {
+    const startDate = document.getElementById('filterStartDate').value;
+    const endDate = document.getElementById('filterEndDate').value;
     const entriesDiv = document.getElementById('entries');
-    entriesDiv.innerHTML = '';
+    entriesDiv.innerHTML = '<p>Carregando...</p>';
 
-    const data = JSON.parse(localStorage.getItem('diarioBordo')) || {};
-    let filteredEntries = [];
+    try {
+      const q = query(collection(db, "observacoes"), where("posto", "==", selectedPosto), orderBy("data"));
+      const querySnapshot = await getDocs(q);
+      let html = "";
 
-    // Converte as datas de string para objetos Date para comparação
-    const startDate = new Date(startDateInput);
-    const endDate = new Date(endDateInput);
-
-    // Itera sobre todas as chaves (datas) no localStorage para filtrar
-    for (const storedDateKey in data) {
-        const dateParts = storedDateKey.split('/');
-        const storedDateFormatted = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-        const storedDate = new Date(storedDateFormatted);
-
-        // Verifica se a data está dentro do período e se o posto corresponde
-        if (storedDate >= startDate && storedDate <= endDate && data[storedDateKey][selectedPosto]) {
-            filteredEntries.push({
-                date: storedDateKey,
-                entries: data[storedDateKey][selectedPosto]
-            });
+      querySnapshot.forEach((doc) => {
+        const obs = doc.data();
+        if (obs.data >= startDate && obs.data <= endDate) {
+          html += `
+            <div class="entry">
+              <div>
+                <strong>${obs.data} - Turno ${obs.turno}</strong><br>
+                <strong>Operador:</strong> ${obs.operador}<br>
+                ${obs.texto}
+              </div>
+            </div>`;
         }
+      });
+
+      entriesDiv.innerHTML = html || '<p>Nenhuma observação encontrada neste período.</p>';
+    } catch (error) {
+      console.error("Erro ao carregar observações:", error);
+      entriesDiv.innerHTML = '<p>Erro ao carregar observações.</p>';
     }
+  }
 
-    if (filteredEntries.length === 0) {
-        entriesDiv.innerHTML = '<p>Nenhuma observação registrada neste período.</p>';
-        return;
-    }
-
-    // Ordena as entradas por data
-    filteredEntries.sort((a, b) => {
-        const [dayA, monthA, yearA] = a.date.split('/').map(Number);
-        const [dayB, monthB, yearB] = b.date.split('/').map(Number);
-        const dateA = new Date(yearA, monthA - 1, dayA);
-        const dateB = new Date(yearB, monthB - 1, dayB);
-        return dateA - dateB;
-    });
-
-    // Exibe as entradas ordenadas
-    filteredEntries.forEach(dayEntry => {
-        dayEntry.entries.forEach((entry, index) => {
-            const div = document.createElement('div');
-            div.className = 'entry';
-            div.innerHTML = `
-                <div>
-                    <strong>${dayEntry.date} - Turno ${entry.shift}</strong><br>
-                    <strong>Operador:</strong> ${entry.operator}<br>
-                    ${entry.text}
-                </div>
-                <button class="remove-btn" onclick="removeEntry('${dayEntry.date}', ${index})">Remover</button>
-            `;
-            entriesDiv.appendChild(div);
-        });
-    });
-}
-
-// ======== FUNÇÃO PARA REMOVER OBSERVAÇÕES ========
-function removeEntry(date, index) {
-    if (confirm("Tem certeza que deseja remover este comentário?")) {
-        const data = JSON.parse(localStorage.getItem('diarioBordo')) || {};
-        const dayEntries = data[date] && data[date][selectedPosto] ? data[date][selectedPosto] : [];
-
-        if (dayEntries.length > 0) {
-            dayEntries.splice(index, 1);
-            localStorage.setItem('diarioBordo', JSON.stringify(data));
-            displayEntries(); // Atualiza a exibição após a remoção
-        }
-    }
-}
-
-// Atualiza observações ao mudar data de filtro
-document.getElementById('filterStartDate').addEventListener('change', displayEntries);
-document.getElementById('filterEndDate').addEventListener('change', displayEntries);
-
-// Exibe observações iniciais
-displayEntries();
+  // ======== EVENTOS ========
+  document.querySelector('.save-btn').addEventListener('click', addEntry);
+  document.getElementById('filterStartDate').addEventListener('change', displayEntries);
+  document.getElementById('filterEndDate').addEventListener('change', displayEntries);
+</script>
