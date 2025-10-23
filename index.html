@@ -1,85 +1,206 @@
-<!DOCTYPE-html>
-    <html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-BR">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Diário de Bordo - Turnos</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário de Bordo - Turnos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
-    <body>
+<body>
+    <nav>
+        <ul>
+            <li><button id="homeBtn" class="active">Início</button></li>
+            <li><button class="posto-btn" data-posto="EOM - Longarina">EOM - Longarina</button></li>
+            <li><button class="posto-btn" data-posto="Dress-UP">Dress - UP</button></li>
+            <li><button class="posto-btn" data-posto="AGV - CAM">AGV - CAM</button></li>
+            <li><button class="posto-btn" data-posto="EOM - CAB">EOM - CAB</button></li>
+            <li><button class="posto-btn" data-posto="AGV - Pneus">AGV - Pneus</button></li>
+        </ul>
+    </nav>
 
-        <nav>
+    <section class="card" id="mainCard">
+        <div id="homePage">
+            <h1>Bem-vindo ao Diário de Bordo</h1>
+            <p>Este diário de bordo foi criado para facilitar a troca de informações entre turnos nas áreas de manutenção industrial.</p>
+            <p>Você encontrará registros separados por cada posto de manutenção:</p>
             <ul>
-                <li><button id="homeBtn" class="active">Início</button></li>
-                <li><button class="posto-btn" data-posto="EOM - Longarina">EOM - Longarina</button></li>
-                <li><button class="posto-btn" data-posto="Dress-UP">Dress - UP</button></li>
-                <li><button class="posto-btn" data-posto="AGV - CAM">AGV - CAM</button></li>
-                <li><button class="posto-btn" data-posto="EOM - CAB">EOM - CAB</button></li>
-                <li><button class="posto-btn" data-posto="AGV - Pneus">AGV - Pneus</button></li>
+                <li>EOM - Longarina</li>
+                <li>Dress - UP</li>
+                <li>AGV - CAM</li>
+                <li>EOM - CAB</li>
+                <li>AGV - Pneus</li>
             </ul>
-        </nav>
+            <p>Para cada posto, é possível:</p>
+            <ul>
+                <li>Registrar observações do turno com data e hora;</li>
+                <li>Consultar observações de dias anteriores;</li>
+                <li>Filtrar registros por data;</li>
+                <li>Garantir que todos os turnos tenham informações centralizadas e organizadas.</li>
+            </ul>
+            <p>Para começar, clique no nome do posto desejado no menu acima.</p>
+        </div>
 
-        <section class="card" id="mainCard">
-            <div id="homePage">
-                <h1>Bem-vindo ao Diário de Bordo</h1>
-                <p>Este diário de bordo foi criado para facilitar a troca de informações entre turnos nas áreas de
-                    manutenção industrial.</p>
-                <p>Você encontrará registros separados por cada posto de manutenção:</p>
-                <ul>
-                    <li>EOM - Longarina</li>
-                    <li>Dress - UP</li>
-                    <li>AGV - CAM</li>
-                    <li>EOM - CAB</li>
-                    <li>AGV - Pneus</li>
-                </ul>
-                <p>Para cada posto, é possível:</p>
-                <ul>
-                    <li>Registrar observações do turno com data e hora;</li>
-                    <li>Consultar observações de dias anteriores;</li>
-                    <li>Filtrar registros por data;</li>
-                    <li>Garantir que todos os turnos tenham informações centralizadas e organizadas.</li>
-                </ul>
-                <p>Para começar, clique no nome do posto desejado no menu acima.</p>
+        <div id="postoPage" style="display:none;">
+            <h1 id="cardTitle">Posto</h1>
+
+            <label>Data da observação:</label>
+            <input type="date" id="entryDate">
+
+            <label>Nome do Operador:</label>
+            <input type="text" id="operatorName" placeholder="Seu nome">
+
+            <label>Turno:</label>
+            <select id="shift">
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="N">N</option>
+                <option value="3">3</option>
+            </select>
+
+            <textarea id="observation" rows="4" placeholder="Digite a observação do turno"></textarea>
+            <button class="save-btn">Salvar Observação</button>
+
+            <div class="date-filter-group">
+                <label>Filtrar por período:</label>
+                <input type="date" id="filterStartDate">
+                <input type="date" id="filterEndDate">
             </div>
 
-            <div id="postoPage" style="display:none;">
-                <h1 id="cardTitle">Posto</h1>
+            <h2>Observações do Período</h2>
+            <div id="entries"></div>
+        </div>
+    </section>
 
-                <label>Data da observação:</label>
-                <input type="date" id="entryDate">
+    <footer>
+        <p>&copy; 2025 - Made by Murilo Vitoriano Bezerra.</p>
+    </footer>
 
-                <label>Nome do Operador:</label>
-                <input type="text" id="operatorName" placeholder="Seu nome">
+    <!-- ======== FIREBASE + SCRIPT PRINCIPAL ======== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } 
+            from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-                <label>Turno:</label>
-                <select id="shift">
-                    <option value="A">A</option>
-                    <option value="B">B</option>
-                    <option value="N">N</option>
-                    <option value="3">3</option>
-                </select>
+        // 🔽 Cole suas credenciais Firebase aqui:
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_AUTH_DOMAIN",
+            projectId: "SEU_PROJECT_ID",
+            storageBucket: "SEU_BUCKET",
+            messagingSenderId: "SEU_SENDER_ID",
+            appId: "SEU_APP_ID"
+        };
 
-                <textarea id="observation" rows="4" placeholder="Digite a observação do turno"></textarea>
-                <button class="save-btn" onclick="addEntry()">Salvar Observação</button>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-                <div class="date-filter-group">
-                    <label>Filtrar por período:</label>
-                    <input type="date" id="filterStartDate" onchange="displayEntries()">
-                    <input type="date" id="filterEndDate" onchange="displayEntries()">
-                </div>
+        // ======== VARIÁVEIS ========
+        const homeBtn = document.getElementById('homeBtn');
+        const postoBtns = document.querySelectorAll('.posto-btn');
+        const allNavBtns = document.querySelectorAll('nav button');
+        let selectedPosto = 'EOM - Longarina';
 
-                <h2>Observações do Período</h2>
-                <div id="entries"></div>
-            </div>
-        </section>
+        // ======== INICIALIZAÇÃO ========
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('filterStartDate').value = today;
+        document.getElementById('filterEndDate').value = today;
 
-        <script src="script.js"></script>
+        // ======== NAVEGAÇÃO ========
+        function setActiveButton(activeButton) {
+            allNavBtns.forEach(btn => btn.classList.remove('active'));
+            activeButton.classList.add('active');
+        }
 
-        <footer>
-            <p>&copy; 2025 - Made by Murilo Vitoriano Bezerra.</p>
-        </footer>
-    </body>
+        homeBtn.addEventListener('click', function () {
+            setActiveButton(this);
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('postoPage').style.display = 'none';
+        });
 
-    </html>
+        postoBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                setActiveButton(this);
+                selectedPosto = this.dataset.posto;
+                document.getElementById('cardTitle').textContent = selectedPosto;
+                document.getElementById('homePage').style.display = 'none';
+                document.getElementById('postoPage').style.display = 'block';
+                displayEntries();
+            });
+        });
+
+        // ======== SALVAR NO FIRESTORE ========
+        async function addEntry() {
+            const dateInput = document.getElementById('entryDate').value;
+            const observation = document.getElementById('observation').value.trim();
+            const operatorName = document.getElementById('operatorName').value.trim();
+            const shift = document.getElementById('shift').value;
+
+            if (!observation || !operatorName) {
+                alert("Por favor, digite a observação e o nome do operador.");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "observacoes"), {
+                    posto: selectedPosto,
+                    data: dateInput,
+                    operador: operatorName,
+                    turno: shift,
+                    texto: observation,
+                    timestamp: new Date()
+                });
+
+                alert("Observação salva com sucesso!");
+                document.getElementById('observation').value = '';
+                document.getElementById('operatorName').value = '';
+                displayEntries();
+            } catch (error) {
+                console.error("Erro ao salvar: ", error);
+                alert("Erro ao salvar no banco de dados!");
+            }
+        }
+
+        // ======== EXIBIR OBSERVAÇÕES ========
+        async function displayEntries() {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const entriesDiv = document.getElementById('entries');
+            entriesDiv.innerHTML = '<p>Carregando...</p>';
+
+            try {
+                const q = query(collection(db, "observacoes"), where("posto", "==", selectedPosto), orderBy("data"));
+                const querySnapshot = await getDocs(q);
+                let html = "";
+
+                querySnapshot.forEach((doc) => {
+                    const obs = doc.data();
+                    if (obs.data >= startDate && obs.data <= endDate) {
+                        html += `
+                            <div class="entry">
+                                <div>
+                                    <strong>${obs.data} - Turno ${obs.turno}</strong><br>
+                                    <strong>Operador:</strong> ${obs.operador}<br>
+                                    ${obs.texto}
+                                </div>
+                            </div>`;
+                    }
+                });
+
+                entriesDiv.innerHTML = html || '<p>Nenhuma observação encontrada neste período.</p>';
+            } catch (error) {
+                console.error("Erro ao carregar observações:", error);
+                entriesDiv.innerHTML = '<p>Erro ao carregar observações.</p>';
+            }
+        }
+
+        // ======== EVENTOS ========
+        document.querySelector('.save-btn').addEventListener('click', addEntry);
+        document.getElementById('filterStartDate').addEventListener('change', displayEntries);
+        document.getElementById('filterEndDate').addEventListener('change', displayEntries);
+    </script>
+</body>
+
+</html>
