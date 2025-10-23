@@ -83,14 +83,27 @@
         import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } 
             from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // 🔽 Cole suas credenciais Firebase aqui:
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_AUTH_DOMAIN",
-            projectId: "SEU_PROJECT_ID",
-            storageBucket: "SEU_BUCKET",
-            messagingSenderId: "SEU_SENDER_ID",
-            appId: "SEU_APP_ID"
+        // Import the functions you need from the SDKs you need
+	import { initializeApp } from "firebase/app";
+	import { getAnalytics } from "firebase/analytics";
+	// TODO: Add SDKs for Firebase products that you want to use
+	// https://firebase.google.com/docs/web/setup#available-libraries
+
+	// Your web app's Firebase configuration
+	// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+	const firebaseConfig = {
+  		apiKey: "AIzaSyA6tGUpvKGHfaNEVGN4dHxrF7Bp8udNNeA",
+  		authDomain: "diario-de-bordo-f9d40.firebaseapp.com",
+  		projectId: "diario-de-bordo-f9d40",
+  		storageBucket: "diario-de-bordo-f9d40.firebasestorage.app",
+  		messagingSenderId: "71453392725",
+  		appId: "1:71453392725:web:0855e51ff7032606c279dc",
+  		measurementId: "G-T6QKV61Q83"
+	};
+
+	// Initialize Firebase
+	const app = initializeApp(firebaseConfig);
+	const analytics = getAnalytics(app);
         };
 
         const app = initializeApp(firebaseConfig);
